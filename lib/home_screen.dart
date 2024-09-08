@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:water_glass/water_glass.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,23 +34,34 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  ListView _buildWaterGlassListView() {
+  Widget _buildWaterGlassListView() {
     return ListView.separated(
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: const Text("Time"),
-            subtitle: const Text("Date"),
-            leading: const Text("1"),
-            trailing: IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.delete),
-            ),
-          );
-        },
-        separatorBuilder: (context, index) {
-          return const Divider();
-        },
-        itemCount: 3);
+      itemCount: waterGlassList.length,
+      itemBuilder: (context, index) {
+        return _buildWaterGlassListTile(index);
+      },
+      separatorBuilder: (context, index) {
+        return const Divider();
+      },
+    );
+  }
+
+  Widget _buildWaterGlassListTile(int index) {
+    final WaterGlass waterGlass = waterGlassList[index];
+    return ListTile(
+      title: Text("${waterGlass.dateTime.hour}:${waterGlass.dateTime.minute}"),
+      subtitle: Text(
+          "${waterGlass.dateTime.day}/${waterGlass.dateTime.month}/${waterGlass.dateTime.year}"),
+      leading: CircleAvatar(
+        child: Text(
+          "${waterGlass.numberOfGlasses}",
+        ),
+      ),
+      trailing: IconButton(
+        onPressed: () => _onTapDeleteWaterGlass(index),
+        icon: const Icon(Icons.delete),
+      ),
+    );
   }
 
   Widget _buildWaterGlassCounter() {
@@ -79,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             TextButton(
-              onPressed: _addNewWaterGlass,
+              onPressed: _onTapAddWaterGlass,
               child: const Text("Add"),
             ),
           ],
@@ -96,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return counter;
   }
 
-  void _addNewWaterGlass() {
+  void _onTapAddWaterGlass() {
     if (_glassNoTEController.text.isEmpty) {
       _glassNoTEController.text = "1";
     }
@@ -106,11 +118,16 @@ class _HomeScreenState extends State<HomeScreen> {
     waterGlassList.add(waterGlass);
     setState(() {});
   }
-}
 
-class WaterGlass {
-  final int numberOfGlasses;
-  final DateTime dateTime;
+  void _onTapDeleteWaterGlass(int index) {
+    setState(() {
+      waterGlassList.removeAt(index);
+    });
+  }
 
-  WaterGlass({required this.numberOfGlasses, required this.dateTime});
+  @override
+  void dispose() {
+    _glassNoTEController.dispose();
+    super.dispose();
+  }
 }
